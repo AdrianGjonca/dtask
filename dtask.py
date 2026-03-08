@@ -17,11 +17,16 @@ class Task:
                 removals.add(subtask)
         self.dependancies -= removals
 
-    def __repr__(self):
+    def __str__(self):
         result = ""
         result += f"[{self.ref}]"
         if self.due is not None:
-            result += f" : {self.due}"
+            result += f' : {self.due.strftime("%Y-%m-%d %H:%M")}'
+        return result
+
+    def __repr__(self):
+        result = ""
+        result += str(self)
         result += "\n"
 
         self.normalize()
@@ -69,6 +74,13 @@ def depexists(this: str, depends_on: str) -> bool:
         if item == depends_on:
             found = True
     return found
+
+def init_time(this: str) -> bool:
+    if tasks[this].due is not None:
+        return False
+    tasks[this].due = datetime.now()
+    return True
+
 
 def help():
     print("+==================D-Task help-card======================+")
@@ -193,6 +205,67 @@ def menu_questionmark(command:str):
             print(f"[{refA}] -> [{refB}]")
             return
 
+def menu_tT(command:str):
+    tokens = command.split()
+    if not ensure_args(tokens, 1):
+        return
+    refA = tokens[1]
+    if not refA in tasks.keys():
+        print(f"Task [{refA}] does not exist!")
+        return
+    if not init_time(refA):
+        print(f"Task [{refA}] allready has date")
+        return
+    print(str(tasks[refA]))
+
+def menu_tm(command:str):
+    tokens = command.split()
+    if not ensure_args(tokens, 2):
+        return
+    refA = tokens[1]
+    month_txt = tokens[2]
+    if not refA in tasks.keys():
+        print(f"Task [{refA}] does not exist!")
+        return
+    month: int
+    try:
+        month = int(month_txt)
+    except ValueError:
+        print(f"Argument [{month_txt}] is not a number!")
+        return
+    if not month in range(1, 13):
+        print(f"Month [{month}] must be between 1-12")
+        return
+    init_time(refA)
+    tasks[refA].due = tasks[refA].due.replace(month=month)
+    print(str(tasks[refA]))
+
+def menu_td(command:str):
+    tokens = command.split()
+    if not ensure_args(tokens, 2):
+        return
+    refA = tokens[1]
+    day_txt = tokens[2]
+    if not refA in tasks.keys():
+        print(f"Task [{refA}] does not exist!")
+        return
+    day: int
+    try:
+        day = int(day_txt)
+    except ValueError:
+        print(f"Argument [{day_txt}] is not a number!")
+        return
+    if not day in range(1, 32):
+        print(f"Day [{day}] must be between 1-31")
+        return
+    init_time(refA)
+    try:
+        tasks[refA].due = tasks[refA].due.replace(day=day)
+    except ValueError:
+        print(f"Day [{day}] not valid for given month!")
+        return
+    print(str(tasks[refA]))
+
 
 #Main
 print("D-Task: Task dependancy organiser and todolist")
@@ -216,5 +289,11 @@ while not command.startswith("."):
         menu_v(command)
     elif command.startswith("?"):
         menu_questionmark(command)
+    elif command.startswith("tT"):
+        menu_tT(command)
+    elif command.startswith("tm"):
+        menu_tm(command)
+    elif command.startswith("td"):
+        menu_td(command)
     else:
         print("Command not found")
