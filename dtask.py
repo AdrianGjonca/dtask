@@ -97,6 +97,7 @@ def help():
     print("td [A] <dd>              Sets due day of task [A] to <dd>")
     print("ty [A] <yyyy>         Sets due year of task [A] to <yyyy>")
     print("tt [A] <hh>:<mn>   Sets due time of task [A] to <hh>:<mn>")
+    print("tz [A] <mn>-<dy>   Sets due date of task [A] to <mn>-<dy>")
 
 def ensure_args(tokens: list[str], n_args: int) -> bool:
     tk_count = len(tokens)
@@ -266,6 +267,93 @@ def menu_td(command:str):
         return
     print(str(tasks[refA]))
 
+def menu_ty(command: str):
+    tokens = command.split()
+    if not ensure_args(tokens, 2):
+        return
+    refA = tokens[1]
+    year_txt = tokens[2]
+    if not refA in tasks.keys():
+        print(f"Task [{refA}] does not exist!")
+        return
+    year: int
+    try:
+        year = int(year_txt)
+    except ValueError:
+        print(f"Argument [{year_txt}] is not a number!")
+        return
+    if year < 1 or year > 9999:
+        print(f"Year [{year}] must be between 1-9999")
+        return
+    init_time(refA)
+    try:
+        tasks[refA].due = tasks[refA].due.replace(year=year)
+    except ValueError:
+        print(f"Year [{year}] not valid!")
+        return
+    print(str(tasks[refA]))
+
+def menu_tt(command: str):
+    tokens = command.split()
+    if not ensure_args(tokens, 2):
+        return
+    refA = tokens[1]
+    time_txt = tokens[2]
+    if not refA in tasks.keys():
+        print(f"Task [{refA}] does not exist!")
+        return
+    
+    try:
+        hour_str, minute_str = time_txt.split(':')
+        hour = int(hour_str)
+        minute = int(minute_str)
+    except ValueError:
+        print(f"Time [{time_txt}] must be in format HH:MM (e.g., 14:30)")
+        return
+    
+    if hour not in range(0, 24):
+        print(f"Hour [{hour}] must be between 0-23")
+        return
+    if minute not in range(0, 60):
+        print(f"Minute [{minute}] must be between 0-59")
+        return
+    
+    init_time(refA)
+    tasks[refA].due = tasks[refA].due.replace(hour=hour, minute=minute)
+    print(str(tasks[refA]))
+
+def menu_tz(command: str):
+    tokens = command.split()
+    if not ensure_args(tokens, 2):
+        return
+    refA = tokens[1]
+    date_txt = tokens[2]
+    if not refA in tasks.keys():
+        print(f"Task [{refA}] does not exist!")
+        return
+    
+    try:
+        month_str, day_str = date_txt.split('-')
+        month = int(month_str)
+        day = int(day_str)
+    except ValueError:
+        print(f"Date [{date_txt}] must be in format MM-DD (e.g., 12-25 for December 25th)")
+        return
+    
+    if month not in range(1, 13):
+        print(f"Month [{month}] must be between 1-12")
+        return
+    if day not in range(1, 32):
+        print(f"Day [{day}] must be between 1-31")
+        return
+    
+    init_time(refA)
+    try:
+        tasks[refA].due = tasks[refA].due.replace(month=month, day=day)
+    except ValueError as e:
+        print(f"Date {month:02d}-{day:02d} is not valid! ({e})")
+        return
+    print(str(tasks[refA]))
 
 #Main
 print("D-Task: Task dependancy organiser and todolist")
@@ -295,5 +383,11 @@ while not command.startswith("."):
         menu_tm(command)
     elif command.startswith("td"):
         menu_td(command)
+    elif command.startswith("ty"):
+        menu_ty(command)
+    elif command.startswith("tt"):
+        menu_tt(command)
+    elif command.startswith("tz"):
+        menu_tz(command)
     else:
         print("Command not found")
