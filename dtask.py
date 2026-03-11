@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from datetime import datetime
 import textwrap as tw
+import readline
+import atexit
+import os
 
 tasks = {}
 
@@ -357,6 +360,16 @@ def menu_tz(command: str):
 
 #Main
 print("D-Task: Task dependancy organiser and todolist")
+
+
+history_file = os.path.join(os.path.expanduser("~"), ".dtask_history")
+try:
+    readline.read_history_file(history_file)
+    readline.set_history_length(1000)
+except FileNotFoundError:
+    pass
+atexit.register(readline.write_history_file, history_file)
+
 print("type h<ret> for help")
 command = ""
 while not command.startswith("."):
