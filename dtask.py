@@ -4,6 +4,8 @@ import textwrap as tw
 import readline
 import atexit
 import os
+import sys
+import signal
 
 tasks = {}
 
@@ -369,6 +371,13 @@ try:
 except FileNotFoundError:
     pass
 atexit.register(readline.write_history_file, history_file)
+
+
+def _sigint_h(sig, frame):
+    print("\nQuiting")
+    sys.exit(0)
+signal.signal(signal.SIGINT, _sigint_h)
+
 
 print("type h<ret> for help")
 command = ""
