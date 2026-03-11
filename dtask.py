@@ -49,6 +49,17 @@ class Task:
         result += subresult
         return result
 
+    def serialize(self) -> str:
+        due_sr: str
+        if self.due is not None:
+            due_sr = self.due.isoformat()
+        else:
+            due_sr = ""
+        dependancies_sr = ",".join(self.dependancies)
+        ref_sr = self.ref
+        
+        return ";".join([ref_sr, dependancies_sr, due_sr])
+
 def addtask(ref: str):
     tasks[ref] = Task(
         ref=ref,
@@ -86,6 +97,13 @@ def init_time(this: str) -> bool:
     tasks[this].due = datetime.now()
     return True
 
+def serialize() -> str:
+    seriaized_tasks = [x.serialize() for x in tasks.values()]
+    serialized = "\n".join(seriaized_tasks)
+    return serialized
+
+
+
 
 def help():
     print("+==================D-Task help-card======================+")
@@ -103,6 +121,8 @@ def help():
     print("ty [A] <yyyy>         Sets due year of task [A] to <yyyy>")
     print("tt [A] <hh>:<mn>   Sets due time of task [A] to <hh>:<mn>")
     print("tz [A] <mn>-<dy>   Sets due date of task [A] to <mn>-<dy>")
+    print(":w <file>                                Writes to <file>")
+    print(":e <file>                                    Loads <file>")
 
 def ensure_args(tokens: list[str], n_args: int) -> bool:
     tk_count = len(tokens)
@@ -360,6 +380,11 @@ def menu_tz(command: str):
         return
     print(str(tasks[refA]))
 
+def menu__debug(command: str):
+    seriaized_tasks = [x.serialize() for x in tasks.values()]
+    serialized = "\n".join(seriaized_tasks)
+    print(serialized)
+
 #Main
 print("D-Task: Task dependancy organiser and todolist")
 
@@ -411,5 +436,7 @@ while not command.startswith("."):
         menu_tt(command)
     elif command.startswith("tz"):
         menu_tz(command)
+    elif command.startswith("_debug"):
+        menu__debug(command)
     else:
         print("Command not found")
