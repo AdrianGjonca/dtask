@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 import textwrap as tw
 import readline
 import atexit
@@ -128,7 +128,9 @@ def depexists(this: str, depends_on: str) -> bool:
 def init_time(this: str) -> bool:
     if tasks[this].due is not None:
         return False
-    tasks[this].due = datetime.now()
+    todo_dt = datetime.now() + timedelta(days=1)
+    todo_dt = todo_dt.replace(hour=0, minute=0, second=0)
+    tasks[this].due = todo_dt
     return True
 
 def serialize() -> str:
