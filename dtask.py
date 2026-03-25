@@ -103,6 +103,17 @@ def displayall():
     for task in tasks.values():
         print(repr(task))
 
+def displayall_parents():
+    children = set()
+    for task in tasks.values():
+        if len(task.dependancies) > 0:
+            children |= task.dependancies
+    parents_r = tasks.keys() - children
+    parents = [tasks[x] for x in parents_r]
+    for task in parents:
+        print(repr(task))
+
+
 def depexists(this: str, depends_on: str) -> bool:
     stack = []
     stack.append(this)
@@ -152,8 +163,9 @@ def help():
     print("d [A] [B]            Create dependancy '[A] requires [B]'")
     print("rn [A]                                   Removes task [A]")
     print("rd [A] [B]          Removes dependancy '[A] requires [B]'")
-    print("v                           Display all dependancy graphs")
+    print("v                      Display all root dependancy graphs")
     print("v [A]                     Display dependancy graph of [A]")
+    print("V                Display absolutely all dependancy graphs")
     print("? [A] [B]                    Checks if '[A] requires [B]'")
     print("tm [A] <mm>            Sets due month of task [A] to <mm>")
     print("td [A] <dd>              Sets due day of task [A] to <dd>")
@@ -237,7 +249,7 @@ def menu_rd(command: str):
 def menu_v(command:str):
     tokens = command.split()
     if len(tokens) == 1:
-        displayall()
+        displayall_parents()
         return
     elif len(tokens) == 2:
         ref = tokens[1]
@@ -245,6 +257,14 @@ def menu_v(command:str):
             print(f"Task [{ref}] does not exist!")
             return
         print(repr(tasks[ref]))
+    else:
+        print("Incorrect syntax, see HelpCard (h<ret>)")
+
+def menu_V(command:str):
+    tokens = command.split()
+    if len(tokens) == 1:
+        displayall()
+        return
     else:
         print("Incorrect syntax, see HelpCard (h<ret>)")
 
@@ -495,6 +515,8 @@ while not command.startswith("."):
         menu_rd(command)
     elif command.startswith("v"):
         menu_v(command)
+    elif command.startswith("V"):
+        menu_V(command)
     elif command.startswith("?"):
         menu_questionmark(command)
     elif command.startswith("tT"):
