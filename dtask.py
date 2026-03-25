@@ -59,6 +59,29 @@ class Task:
         ref_sr = self.ref
         
         return ";".join([ref_sr, dependancies_sr, due_sr])
+    
+    @staticmethod
+    def deserialize(serialized_task: str):
+        sections = serialized_task.split(";")
+        ref_sr, dependancies_sr, due_sr = sections
+        
+        ref = ref_sr
+        dependancies = (
+            set(dependancies_sr.split(","))
+            if len(dependancies_sr)>0
+            else set()
+        )
+        due = (
+            datetime.fromisoformat(due_sr)
+            if len(due_sr)>0
+            else None
+        )
+
+        tasks[ref] = Task(
+            ref=ref,
+            due=due,
+            dependancies=dependancies
+        )
 
 def addtask(ref: str):
     tasks[ref] = Task(
@@ -102,11 +125,22 @@ def serialize() -> str:
     serialized = "\n".join(seriaized_tasks)
     return serialized
 
+def deserialize(serialized: str):
+    global tasks
+
+    serialized_tasks = serialized.split("\n")
+    tasks = {}
+    for serialized_task in serialized_tasks:
+        Task.deserialize(serialized_task)
+
 def writeout(file: str, to_write: str):
     with open(file, 'w') as file_h:
         file_h.write(to_write)
 
-
+def readin(file: str):
+    with open(file, "r") as file_h:
+        serialized = file_h.read()
+        deserialize(serialized)
 
 def help():
     print("+==================D-Task help-card======================+")
@@ -393,12 +427,15 @@ def menu_colon_w(command: str):
         return
     file = " ".join(tokens[1:])
 
-    seriaized_tasks = [x.serialize() for x in tasks.values()]
-    serialized = "\n".join(seriaized_tasks)
-    #print(serialized)
+    writeout(file, serialize())
 
-    with open(file, "w") as f:
-        f.write(serialized)
+def menu_colon_e(command: str):
+    tokens = command.split()
+    if not ensure_args(tokens, 1):
+        return
+    file = " ".join(tokens[1:])
+
+    readin(file)
 
 #Main
 print("D-Task: Task dependancy organiser and todolist")
@@ -453,6 +490,8 @@ while not command.startswith("."):
         menu_tz(command)
     elif command.startswith(":w"):
         menu_colon_w(command)
+    elif command.startswith(":e"):
+        menu_colon_e(command)
     elif command.startswith("_debug"):
         menu__debug(command)
     else:
