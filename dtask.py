@@ -102,6 +102,9 @@ def serialize() -> str:
     serialized = "\n".join(seriaized_tasks)
     return serialized
 
+def writeout(file: str, to_write: str):
+    with open(file, 'w') as file_h:
+        file_h.write(to_write)
 
 
 
@@ -208,7 +211,6 @@ def menu_v(command:str):
         print(repr(tasks[ref]))
     else:
         print("Incorrect syntax, see HelpCard (h<ret>)")
-
 
 def menu_questionmark(command:str):
     tokens = command.split()
@@ -385,6 +387,19 @@ def menu__debug(command: str):
     serialized = "\n".join(seriaized_tasks)
     print(serialized)
 
+def menu_colon_w(command: str):
+    tokens = command.split()
+    if not ensure_args(tokens, 1):
+        return
+    file = " ".join(tokens[1:])
+
+    seriaized_tasks = [x.serialize() for x in tasks.values()]
+    serialized = "\n".join(seriaized_tasks)
+    #print(serialized)
+
+    with open(file, "w") as f:
+        f.write(serialized)
+
 #Main
 print("D-Task: Task dependancy organiser and todolist")
 
@@ -436,6 +451,8 @@ while not command.startswith("."):
         menu_tt(command)
     elif command.startswith("tz"):
         menu_tz(command)
+    elif command.startswith(":w"):
+        menu_colon_w(command)
     elif command.startswith("_debug"):
         menu__debug(command)
     else:
