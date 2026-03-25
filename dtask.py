@@ -136,11 +136,13 @@ def deserialize(serialized: str):
 def writeout(file: str, to_write: str):
     with open(file, 'w') as file_h:
         file_h.write(to_write)
+        print("Wrote to '" + file + "'")
 
 def readin(file: str):
     with open(file, "r") as file_h:
         serialized = file_h.read()
         deserialize(serialized)
+        print("Read from '" + file + "'")
 
 def help():
     print("+==================D-Task help-card======================+")
@@ -434,12 +436,31 @@ def menu_colon_e(command: str):
     if not ensure_args(tokens, 1):
         return
     file = " ".join(tokens[1:])
-
-    readin(file)
+    
+    try:
+        readin(file)
+    except FileNotFoundError:
+        print("File does not exist!", file=sys.stderr)
+    except IsADirectoryError:
+        print("File path stated is actually a directory!", file=sys.stderr)
 
 #Main
 print("D-Task: Task dependancy organiser and todolist")
 
+if len(sys.argv[1:]) > 1:
+    print("D-Task can only take 0 or 1 arguments!")
+    #TODO something nicer and maybe a man page
+    sys.exit(7)
+
+if len(sys.argv[1:]) == 1:
+    try:
+        readin(sys.argv[1])
+    except FileNotFoundError:
+        print("File does not exist!", file=sys.stderr)
+        sys.exit(2)
+    except IsADirectoryError:
+        print("File path stated is actually a directory!", file=sys.stderr)
+        sys.exit(21)
 
 history_file = os.path.join(os.path.expanduser("~"), ".dtask_history")
 try:
