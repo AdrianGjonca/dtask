@@ -1,0 +1,51 @@
+.TH DTASK 1 "2025-03-25" "inDev" "D-Task Manual Page"
+.SH NAME
+dtask \- Task manager with task dependancies
+.SH SYNOPSIS
+.B dtask
+.br
+.B dtask
+[file]
+.SH DESCRIPTION
+.B dtask
+is a task manager program (akin to a todo list). It lets you create tasks by reference strings; assign due dates/times; and (most crucially) specify task dependancies!
+.PP
+All tasks within a D-Task file belong to a DAG(https://en.wikipedia.org/wiki/Directed_acyclic_graph) (which may or may not be fully connected).
+.PP
+The interface of D-Task is a simmple shell like interface with short 1-2 letter commands followed by their arguments. A comprehencive list of commands can be found by running
+.B dtask
+with no arguments the typing in
+.B h<RET>
+.SH INTERNAL INSTRUCTIONS
+.TS
+tab(|);
+l lx.
+Command|Description
+_
+\fB\&.\fR|Quit program
+\fBh\fR|Open this helpscreen
+\fBn [A]\fR|Create new task with reference [A]
+\fBd [A] [B]\fR|Create dependency '[A] requires [B]'
+\fBrn [A]\fR|Removes task [A]
+\fBrd [A] [B]\fR|Removes dependency '[A] requires [B]'
+\fBv\fR|Display all dependency graphs
+\fBv [A]\fR|Display dependency graph of [A]
+\fB? [A] [B]\fR|Checks if '[A] requires [B]'
+\fBtm [A] <mm>\fR|Sets due month of task [A] to <mm>
+\fBtd [A] <dd>\fR|Sets due day of task [A] to <dd>
+\fBty [A] <yyyy>\fR|Sets due year of task [A] to <yyyy>
+\fBtt [A] <hh>:<mn>\fR|Sets due time of task [A] to <hh>:<mn>
+\fBtz [A] <mn>-<dy>\fR|Sets due date of task [A] to <mn>-<dy>
+\fB:w <file>\fR|Writes to <file>
+\fB:e <file>\fR|Loads <file>
+.TE
+.SH EXAMPLES
+.B dtask
+\- Run dtask with an empty task-graph
+.br
+.B dtask
+\fIwork_todo.dtask\fR
+\- Run dtask and load the graph stored in
+\fIwork_todo.dtask\fR
+.SH AUTHOR
+Adrian Gjonca <gjoncaadrian@gmail.com>
